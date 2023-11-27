@@ -1,58 +1,141 @@
 package Hotal_Package;
 
-import java.sql.Connection;
-import java.sql.Statement;
-import java.sql.DriverManager;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.sql.*;
 import java.util.Scanner;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 
 public class HotalReserVationSystem {
     private static final String url = "jdbc:mysql://localhost:3306/hotel_db";
     private static final String username = "root";
     private static final String password = "91491026";
+    //private static final String INSERT = ;
+
     public static void main(String args[])throws ClassNotFoundException,SQLException{
+        Scanner sc = new Scanner(System.in);
         try{
             Class.forName("com.mysql.cj.jdbc.Driver");
 
         }catch(ClassNotFoundException e){
             System.out.println(e.getMessage()+"this class not found.....");
         }
-        try{
-            Connection conn = DriverManager.getConnection(url,username,password);
-        }catch(SQLException e){
-            System.out.println(e.getMessage());
+        System.out.println();
+        System.out.println();
+        System.out.println("╔══════════════════════════╗");
+        System.out.println("║   SIGN_Up -> press 1     ║");
+        System.out.println("╚══════════════════════════╝");
+        System.out.println();
+        System.out.println("╔══════════════════════════╗");
+        System.out.println("║   SIGN_In -> press 2     ║");
+        System.out.println("╚══════════════════════════╝");
+        System.out.println();
+        System.out.println("╔══════════════════════════╗");
+        System.out.println("║      Exit -> press 3     ║");
+        System.out.println("╚══════════════════════════╝");
+        System.out.println();
+
+
+        int ans = sc.nextInt();
+        switch(ans){
+            case 1:{
+                try{
+                    InputStreamReader r = new InputStreamReader(System.in);
+                    BufferedReader br = new BufferedReader(r);
+                    System.out.println("signUp new account-> ");
+                    Connection conn = DriverManager.getConnection(url,username,password);
+                    System.out.println("Enter first name-> ");
+                    String fname = br.readLine();
+                    System.out.println("Enter your Second name-> ");
+                    String sname = br.readLine();
+                    System.out.println("Enter your email-> ");
+                    String email = br.readLine();
+                    System.out.println("Enter your password-> ");
+                    int pass = Integer.parseInt(br.readLine());
+
+                    String q = "INSERT INTO security(name,last,email,password)VALUES (?,?,?,?)";
+                    PreparedStatement pst = conn.prepareStatement(q);
+                    pst.setString(1,fname);
+                    pst.setString(2,sname);
+                    pst.setString(3,email);
+                    pst.setInt(4,pass);
+                    pst.executeUpdate();
+                }catch(SQLException e){
+                    System.out.println(e.getMessage());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                break;
+            }
+            case 2:{
+                InputStreamReader r = new InputStreamReader(System.in);
+                BufferedReader br = new BufferedReader(r);
+                try {
+                    System.out.print("Enter email-> ");
+                    String check_email = br.readLine();
+                    System.out.println("Enter password-> ");
+                    int check_pass = Integer.parseInt(br.readLine()); // Assuming password is a String
+
+                    String sql = "SELECT email, password FROM security WHERE email = ? AND password = ?";
+                    Connection conn = DriverManager.getConnection(url, username, password);
+                    PreparedStatement pst = conn.prepareStatement(sql);
+                    pst.setString(1, check_email);
+                    pst.setInt(2, check_pass);
+
+                    ResultSet set = pst.executeQuery();
+
+                    if (set.next()) {
+                        System.out.println("User authenticated!");
+                    }
+                    else {
+                        System.out.println("Invalid email or password!");
+                        System.exit(0);
+                    }
+                    break;
+                } catch (SQLException | IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            case 3:{
+                try{
+                    System.out.println("Exiting system");
+                    int i = 5;
+                    while(i!=0){
+                        System.out.print(".");
+                        Thread.sleep(458);
+                        i--;
+                    }
+                    System.out.println();
+                    System.out.println("thankyou for using hotel system");
+                    System.exit(0);
+                }catch(InterruptedException e){
+                    System.out.println(e.getMessage());
+                }
+                break;
+            }
+            default:
+                System.out.println("INVALID INPUT ....");
+                try{
+                    int i = 5;
+                    while(i!=0){
+                        System.out.print(".");
+
+                        Thread.sleep(458);
+                        i--;
+                    }
+                    System.out.println();
+                    System.out.println("PLEASE TRY AGAIN-> ");
+                    System.exit(0);
+                }catch(InterruptedException e){
+                    System.out.println("e.getMessage()");
+                }
         }
-        try{
-            System.out.println("sign account");
-            Connection conn = DriverManager.getConnection(url,username,password);
-
-        }catch(SQLException e){
-            System.out.println(e.getMessage());
-        }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
         try{
             Connection conn = DriverManager.getConnection(url,username,password);
             while(true){
                 System.out.println();
-                Scanner sc  = new Scanner(System.in);
+                //Scanner sc  = new Scanner(System.in);
                 System.out.println("\t\t\t\t\t\t\t\t\t\t+------------------------------+");
                 System.out.println("\t\t\t\t\t\t\t\t\t\t|  HOTEL MANAGEMENT SYSTEM     |");
                 System.out.println("\t\t\t\t\t\t\t\t\t\t|______________________________|");
