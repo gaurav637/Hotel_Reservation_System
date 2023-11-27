@@ -19,9 +19,14 @@ public class HotalReserVationSystem {
             System.out.println(e.getMessage()+"this class not found.....");
         }
         try{
+            Connection conn = DriverManager.getConnection(url,username,password);
+        }catch(SQLException e){
+            System.out.println(e.getMessage());
+        }
+        try{
             System.out.println("sign account");
             Connection conn = DriverManager.getConnection(url,username,password);
-            
+
         }catch(SQLException e){
             System.out.println(e.getMessage());
         }
