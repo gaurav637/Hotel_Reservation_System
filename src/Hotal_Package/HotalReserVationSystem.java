@@ -197,13 +197,14 @@ public class HotalReserVationSystem {
     private static void ReservRoom(Connection conn,Scanner sc){
         try{
             System.out.println("Enter guest name: ");
-            String guestName = sc.next();
-            sc.nextLine();
-            //String guestname = sc.nextLine();
+           // String guestName = sc.next();
+           // sc.nextLine();
+            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+            String guestName = br.readLine();
             System.out.println("Enter room number:");
-            int roomNumber = sc.nextInt();
+            int roomNumber = Integer.parseInt(br.readLine());
             System.out.println("Enter contact number:");
-            String contactNumber = sc.next();
+            String contactNumber = br.readLine();
             String query = "INSERT INTO reservation(guest_name,room_number,contact_number)"+
                     "VALUES('"+guestName+"',"+roomNumber+",'"+contactNumber+"')";
 
