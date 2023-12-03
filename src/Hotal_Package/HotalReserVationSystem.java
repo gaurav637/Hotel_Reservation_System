@@ -10,7 +10,7 @@ public class HotalReserVationSystem {
     private static final String url = "jdbc:mysql://localhost:3306/hotel_db";
     private static final String username = "root";
     private static final String password = "91491026";
-    //private static final String INSERT = ;
+
 
     public static void main(String args[])throws ClassNotFoundException,SQLException{
         Scanner sc = new Scanner(System.in);
@@ -46,7 +46,7 @@ public class HotalReserVationSystem {
                     Connection conn = DriverManager.getConnection(url,username,password);
                     System.out.println("Enter first name-> ");
                     String fname = br.readLine();
-                    System.out.println("Enter your Second name-> ");
+                    System.out.println("Enter your last name-> ");
                     String sname = br.readLine();
                     System.out.println("Enter your email-> ");
                     String email = br.readLine();
@@ -71,10 +71,11 @@ public class HotalReserVationSystem {
                 InputStreamReader r = new InputStreamReader(System.in);
                 BufferedReader br = new BufferedReader(r);
                 try {
+                    System.out.println("signIn you account");
                     System.out.print("Enter email-> ");
                     String check_email = br.readLine();
                     System.out.println("Enter password-> ");
-                    int check_pass = Integer.parseInt(br.readLine()); // Assuming password is a String
+                    int check_pass = Integer.parseInt(br.readLine());
 
                     String sql = "SELECT email, password FROM security WHERE email = ? AND password = ?";
                     Connection conn = DriverManager.getConnection(url, username, password);
@@ -157,7 +158,7 @@ public class HotalReserVationSystem {
                 int choose = sc.nextInt();
                 switch(choose){
                     case 1:{
-                        ReservRoom(conn,sc);
+                        ReservRoom(conn);
                         break;
                     }
                     case 2:{
@@ -165,11 +166,11 @@ public class HotalReserVationSystem {
                         break;
                     }
                     case 3:{
-                        getRoomNumber(conn,sc);
+                        getRoomNumber(conn);
                         break;
                     }
                     case 4:{
-                        updateReservation(conn,sc);
+                        updateReservation(conn);
                         break;
                     }
                     case 5:{
@@ -194,7 +195,7 @@ public class HotalReserVationSystem {
         }
     }
 
-    private static void ReservRoom(Connection conn,Scanner sc){
+    private static void ReservRoom(Connection conn){
         try{
             System.out.println("Enter guest name: ");
            // String guestName = sc.next();
@@ -205,22 +206,34 @@ public class HotalReserVationSystem {
             int roomNumber = Integer.parseInt(br.readLine());
             System.out.println("Enter contact number:");
             String contactNumber = br.readLine();
-            String query = "INSERT INTO reservation(guest_name,room_number,contact_number)"+
-                    "VALUES('"+guestName+"',"+roomNumber+",'"+contactNumber+"')";
-
-            try{
-                  Statement sts = conn.createStatement();
-                  int affectedRow = sts.executeUpdate(query);
-                  if(affectedRow>0){
-                      System.out.println("reservation successfull...");
-                  }
-                  else{
-                      System.out.println("reservation unsuccessfull..!");
-                  }
-            }catch(SQLException e){
-                System.out.println(e.getMessage());
+            if(contactNumber.length()>10){
+                System.out.println("your phone number is invalid please try again...");
             }
+            String sql = "SELECT room_number FROM reservation WHERE room_number = ?";
+            PreparedStatement pr  =  conn.prepareStatement(sql);
+            pr.setInt(1,roomNumber);
+            ResultSet set = pr.executeQuery();
+            if(set.next()){
+                System.out.println("room number booking already! please try another room");
+                exit();
+            }
+            else{
+                String query = "INSERT INTO reservation(guest_name,room_number,contact_number)"+
+                        "VALUES('"+guestName+"',"+roomNumber+",'"+contactNumber+"')";
 
+                try{
+                    Statement sts = conn.createStatement();
+                    int affectedRow = sts.executeUpdate(query);
+                    if(affectedRow>0){
+                        System.out.println("reservation successfull...");
+                    }
+                    else{
+                        System.out.println("reservation unsuccessfull..!");
+                    }
+                }catch(SQLException e){
+                    System.out.println(e.getMessage());
+                }
+            }
         }catch(Exception e){
             System.out.println(e.getMessage());
         }
@@ -253,12 +266,14 @@ public class HotalReserVationSystem {
         }
     }
 
-    private static void getRoomNumber(Connection conn,Scanner sc){
+    private static void getRoomNumber(Connection conn){
         try{
+            InputStreamReader r = new InputStreamReader(System.in);
+            BufferedReader sc = new BufferedReader(r);
             System.out.println("Enter reservation ID ");
-            int reservID  = sc.nextInt();
+            int reservID  = Integer.parseInt(sc.readLine());
             System.out.println("Enter guest name");
-            String gtName  = sc.next();
+            String gtName  = sc.readLine();
             String q = "SELECT room_number FROM reservation " +
                     "WHERE reservation_id = " + reservID +
                     " AND guest_name = '" + gtName + "'";
@@ -267,8 +282,7 @@ public class HotalReserVationSystem {
                 ResultSet set = sts.executeQuery(q);
                 if(set.next()){
                     int roomNumber  = set.getInt("room_number");
-                    System.out.println("room number for reservationID"+reservID+
-                            "and guest"+gtName+"is:"+roomNumber);
+                    System.out.println("room number for reservationID " +" "+ reservID   +" and guest "+ gtName + " is:" + roomNumber);
                 }
                 else{
                     System.out.println("Reservation not found for given ID and guest name");
@@ -282,21 +296,23 @@ public class HotalReserVationSystem {
         }
     }
 
-    private static void updateReservation(Connection conn,Scanner sc){
+    private static void updateReservation(Connection conn){
         try{
+            InputStreamReader r = new InputStreamReader(System.in);
+            BufferedReader sc = new BufferedReader(r);
             System.out.println("Enter reservationID  to update");
-            int reservationID = sc.nextInt();
-            sc.nextLine();//consume the newline character
+            int reservationID = Integer.parseInt(sc.readLine());
+           // sc.nextLine();//consume the newline character
             if(!reservationExists(conn,reservationID)){
                 System.out.println("Reservation not found for given ID");
                 return;
             }
             System.out.println("Enter new guest name -> ");
-            String newguest = sc.nextLine();
+            String newguest = sc.readLine();
             System.out.println("Enter new room number -> ");
-            int newRoom = sc.nextInt();
+            int newRoom = Integer.parseInt(sc.readLine());
             System.out.println("Enter new contact number -> ");
-            String newContact = sc.nextLine();
+            String newContact = sc.readLine();
 
             String sql = "UPDATE reservation SET guest_name = '"+newguest+"',"+
                          "room_number = " + newRoom +"," +
@@ -312,7 +328,7 @@ public class HotalReserVationSystem {
                     System.out.println("reservation update failed");
                 }
             }
-        }catch(SQLException e){
+        }catch(SQLException|IOException e){
             e.printStackTrace();
         }
     }
