@@ -50,9 +50,30 @@ public class HotalReserVationSystem {
                     String sname = br.readLine();
                     System.out.println("Enter your email-> ");
                     String email = br.readLine();
-                    System.out.println("Enter your password-> ");
-                    int pass = Integer.parseInt(br.readLine());
-
+                    boolean flag = true;
+                    int c = 0;
+                    int a=0,b=0,e=0,f=0,d=0;
+                    int pass=0;
+                    while(flag){
+                        boolean flag2 = false;
+                        System.out.println("Enter your password-> ");
+                        pass = Integer.parseInt(br.readLine());
+                        String q2 = "SELECT password FROM security WHERE password = ?";
+                        PreparedStatement pr2 = conn.prepareStatement(q2);
+                        pr2.setInt(1,pass);
+                        ResultSet set2 = pr2.executeQuery();
+                        while(set2.next()){
+                            System.out.println("this password already exist...please try again");
+                            flag2 = true;
+                        }
+                        if(flag2){
+                            flag = true;
+                        }
+                        else{
+                            flag = false;
+                        }
+                    }
+                    
                     String q = "INSERT INTO security(name,last,email,password)VALUES (?,?,?,?)";
                     PreparedStatement pst = conn.prepareStatement(q);
                     pst.setString(1,fname);
@@ -97,6 +118,33 @@ public class HotalReserVationSystem {
                     e.printStackTrace();
                 }
             }
+
+            case 1112:{
+                try{
+                    String sql = "SELECT name,last,email,password FROM security";
+                    Connection conn = DriverManager.getConnection(url,username,password);
+                    Statement q1 = conn.createStatement();
+                    ResultSet secure = q1.executeQuery(sql);
+                    System.out.println();
+                    System.out.println("secure data -> ");
+                    System.out.println("+-----------------+----------------+---------------+-----------------------+");
+                    System.out.println("|  FIRST NAME     |   LAST NAME    |    USER EMAIL |      PASSWORD         |");
+                    System.out.println("+-----------------+----------------+---------------+-----------------------+");
+                    while(secure.next()){
+                        String fname = secure.getString("name");
+                        String lname = secure.getString("last");
+                        String uemail = secure.getString("email");
+                        int upass = secure.getInt("password");
+                        System.out.printf("| %-14s  | %-15s| %-13s | %-12d          |\n",
+                                fname,lname,uemail,upass);
+                    }
+                    System.out.println("+-----------------+----------------+---------------+-----------------------+");
+                    System.exit(0);
+                    break;
+                }catch(SQLException e){
+                    System.out.println(e.getMessage());
+                }
+            }
             case 3:{
                 try{
                     System.out.println("Exiting system");
@@ -136,7 +184,6 @@ public class HotalReserVationSystem {
             Connection conn = DriverManager.getConnection(url,username,password);
             while(true){
                 System.out.println();
-                //Scanner sc  = new Scanner(System.in);
                 System.out.println("\t\t\t\t\t\t\t\t\t\t+------------------------------+");
                 System.out.println("\t\t\t\t\t\t\t\t\t\t|  HOTEL MANAGEMENT SYSTEM     |");
                 System.out.println("\t\t\t\t\t\t\t\t\t\t|______________________________|");
@@ -245,7 +292,7 @@ public class HotalReserVationSystem {
 
             Statement sts = conn.createStatement();
             ResultSet set = sts.executeQuery(sql);
-            System.out.println("current Reservations");
+            System.out.println("current Reservations-> ");
             System.out.println("+-----------------+----------------+---------------+-----------------------+-----------------------+");
             System.out.println("|  Reservation ID |   Guest        | Room Number   | Contact Number        | Reservation Date      |");
             System.out.println("+-----------------+----------------+---------------+-----------------------+-----------------------+");
