@@ -73,7 +73,7 @@ public class HotalReserVationSystem {
                             flag = false;
                         }
                     }
-                    
+
                     String q = "INSERT INTO security(name,last,email,password)VALUES (?,?,?,?)";
                     PreparedStatement pst = conn.prepareStatement(q);
                     pst.setString(1,fname);
@@ -224,6 +224,10 @@ public class HotalReserVationSystem {
                         deleteReservation(conn,sc);
                         break;
                     }
+                    case 1112:{
+                        allReservationData(conn);
+                        break;
+                    }
                     case 0:{
                         exit();
                         sc.close();
@@ -242,20 +246,74 @@ public class HotalReserVationSystem {
         }
     }
 
+    public static void allReservationData(Connection conn)throws SQLException{
+        String sql = "SELECT reservation_id,guest_name,room_number,contact_number,reservation_date FROM reservation";
+        try{
+
+            Statement sts = conn.createStatement();
+            ResultSet set = sts.executeQuery(sql);
+            System.out.println("current Reservations-> ");
+            System.out.println("+-----------------+----------------+---------------+-----------------------+-----------------------+");
+            System.out.println("|  Reservation ID |   Guest        | Room Number   | Contact Number        | Reservation Date      |");
+            System.out.println("+-----------------+----------------+---------------+-----------------------+-----------------------+");
+
+            while(set.next()){
+                int reservation_id = set.getInt("reservation_id");
+                String guestName = set.getString("guest_name");
+                int roomNumber = set.getInt("room_number");
+                String contactNumber = set.getString("contact_number");
+                String reservationdate = set.getTimestamp("reservation_date").toString();
+                System.out.printf("| %-14d  | %-15s| %-13d | %-20s  | %-19s |\n",
+                        reservation_id,guestName,roomNumber,contactNumber,reservationdate);
+            }
+            System.out.println("+-----------------+----------------+---------------+-----------------------+-----------------------+");
+
+        }catch(SQLException e){
+            System.out.println(e.getMessage()+"view reservation error ");
+        }
+
+    }
+
     private static void ReservRoom(Connection conn){
+        int roomNumber = -1;
+        Long contactNumber = null;
         try{
             System.out.println("Enter guest name: ");
            // String guestName = sc.next();
            // sc.nextLine();
             BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
             String guestName = br.readLine();
-            System.out.println("Enter room number:");
-            int roomNumber = Integer.parseInt(br.readLine());
-            System.out.println("Enter contact number:");
-            String contactNumber = br.readLine();
-            if(contactNumber.length()>10){
-                System.out.println("your phone number is invalid please try again...");
+            //System.out.println("Enter room number:");
+            String random = "SELECT DISTINCT(FLOOR(1+RAND()*(100-1))) AS RANDOM";
+            Statement rst = conn.createStatement();
+            ResultSet rset = rst.executeQuery(random);
+            if(rset.next()){
+                roomNumber = rset.getInt("RANDOM");
             }
+            //int roomNumber = Integer.parseInt(br.readLine());
+            System.out.println("Enter contact number:");
+            //String contactNumber = br.readLine();
+            boolean check = true;
+            while(check){
+                int count = 0;
+                contactNumber = Long.parseLong(br.readLine());
+                Long n = contactNumber;
+                while(n>0){
+                    Long digit = n%10;
+                    count++;
+                    n = n/10;
+                }
+                if(count==10){
+                    check = false;
+                }
+                else{
+                    System.out.println("your phone number is invalid..... please try again");
+                }
+            }
+           // Long contactNumber = Long.parseLong(br.readLine());
+//            if(contactNumber.length()!=10){
+//                System.out.println("your phone number is invalid please try again...");
+//            }
             String sql = "SELECT room_number FROM reservation WHERE room_number = ?";
             PreparedStatement pr  =  conn.prepareStatement(sql);
             pr.setInt(1,roomNumber);
@@ -287,27 +345,36 @@ public class HotalReserVationSystem {
     }
 
     private static void viewReservation(Connection conn) throws SQLException{
-        String sql = "SELECT reservation_id,guest_name,room_number,contact_number,reservation_date FROM reservation";
+        //String sql = "SELECT reservation_id,guest_name,room_number,contact_number,reservation_date FROM reservation";
+        //String sql = "SELECT reservation_id,guest_name,room_number,contact_number,reservation_date FROM reservation";
+        String sql = "SELECT * FROM reservation WHERE reservation_id=(SELECT max(reservation_id) FROM reservation)";
         try{
-
+            //PreparedStatement sts = conn.prepareStatement(sql);
+            //sts.setInt(1,roomNumber);
             Statement sts = conn.createStatement();
             ResultSet set = sts.executeQuery(sql);
-            System.out.println("current Reservations-> ");
-            System.out.println("+-----------------+----------------+---------------+-----------------------+-----------------------+");
-            System.out.println("|  Reservation ID |   Guest        | Room Number   | Contact Number        | Reservation Date      |");
-            System.out.println("+-----------------+----------------+---------------+-----------------------+-----------------------+");
+            if(!set.next()){
+                System.out.println("hotel is empty... not reserv any room..");
+            }
+            else{
+                System.out.println();
+                System.out.println("current Reservations-> ");
+                System.out.println();
+                System.out.println("+-----------------+----------------+---------------+-----------------------+-----------------------+");
+                System.out.println("|  Reservation ID |   Guest        | Room Number   | Contact Number        | Reservation Date      |");
+                System.out.println("+-----------------+----------------+---------------+-----------------------+-----------------------+");
 
-            while(set.next()){
-                int reservation_id = set.getInt("reservation_id");
-                String guestName = set.getString("guest_name");
-                int roomNumber = set.getInt("room_number");
-                String contactNumber = set.getString("contact_number");
-                String reservationdate = set.getTimestamp("reservation_date").toString();
+                while(set.next()){
+                    int reservation_id = set.getInt("reservation_id");
+                    String guestName = set.getString("guest_name");
+                    int roomNumber = set.getInt("room_number");
+                    String contactNumber = set.getString("contact_number");
+                    String reservationdate = set.getTimestamp("reservation_date").toString();
                     System.out.printf("| %-14d  | %-15s| %-13d | %-20s  | %-19s |\n",
                             reservation_id,guestName,roomNumber,contactNumber,reservationdate);
+                }
+                System.out.println("+-----------------+----------------+---------------+-----------------------+-----------------------+");
             }
-            System.out.println("+-----------------+----------------+---------------+-----------------------+-----------------------+");
-
         }catch(SQLException e){
             System.out.println(e.getMessage()+"view reservation error ");
         }
@@ -402,6 +469,7 @@ public class HotalReserVationSystem {
             System.out.println(e.getMessage());
         }
     }
+
     private static boolean reservationExists(Connection conn,int reservationID){
         try{
             String sql = "SELECT reservation_id FROM reservation WHERE reservation_id = "+reservationID;
@@ -415,6 +483,7 @@ public class HotalReserVationSystem {
             return false;
         }
     }
+
     public static void exit() throws InterruptedException{
         System.out.println("Exiting System");
         int i = 5;
