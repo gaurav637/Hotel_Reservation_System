@@ -1,4 +1,4 @@
-package Hotal_Package;
+package Hotel_Package;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -53,14 +53,14 @@ public class HotalReserVationSystem {
                     boolean flag = true;
                     int c = 0;
                     int a=0,b=0,e=0,f=0,d=0;
-                    int pass=0;
+                    String pass=null;
                     while(flag){
                         boolean flag2 = false;
                         System.out.println("Enter your password-> ");
-                        pass = Integer.parseInt(br.readLine());
+                        pass = br.readLine();
                         String q2 = "SELECT password FROM security WHERE password = ?";
                         PreparedStatement pr2 = conn.prepareStatement(q2);
-                        pr2.setInt(1,pass);
+                        pr2.setString(1,pass);
                         ResultSet set2 = pr2.executeQuery();
                         while(set2.next()){
                             System.out.println("this password already exist...please try again");
@@ -79,7 +79,7 @@ public class HotalReserVationSystem {
                     pst.setString(1,fname);
                     pst.setString(2,sname);
                     pst.setString(3,email);
-                    pst.setInt(4,pass);
+                    pst.setString(4,pass);
                     pst.executeUpdate();
                 }catch(SQLException e){
                     System.out.println(e.getMessage());
@@ -353,28 +353,27 @@ public class HotalReserVationSystem {
             //sts.setInt(1,roomNumber);
             Statement sts = conn.createStatement();
             ResultSet set = sts.executeQuery(sql);
-            if(!set.next()){
-                System.out.println("hotel is empty... not reserv any room..");
+            if(!set.isBeforeFirst()){
+                System.out.println("database is empty...");
             }
-            else{
+            else {
                 System.out.println();
                 System.out.println("current Reservations-> ");
                 System.out.println();
                 System.out.println("+-----------------+----------------+---------------+-----------------------+-----------------------+");
                 System.out.println("|  Reservation ID |   Guest        | Room Number   | Contact Number        | Reservation Date      |");
                 System.out.println("+-----------------+----------------+---------------+-----------------------+-----------------------+");
-
-                while(set.next()){
-                    int reservation_id = set.getInt("reservation_id");
-                    String guestName = set.getString("guest_name");
-                    int roomNumber = set.getInt("room_number");
-                    String contactNumber = set.getString("contact_number");
-                    String reservationdate = set.getTimestamp("reservation_date").toString();
-                    System.out.printf("| %-14d  | %-15s| %-13d | %-20s  | %-19s |\n",
-                            reservation_id,guestName,roomNumber,contactNumber,reservationdate);
-                }
-                System.out.println("+-----------------+----------------+---------------+-----------------------+-----------------------+");
             }
+            while(set.next()){
+                int reservation_id = set.getInt("reservation_id");
+                String guestName = set.getString("guest_name");
+                int roomNumber = set.getInt("room_number");
+                String contactNumber = set.getString("contact_number");
+                String reservationdate = set.getTimestamp("reservation_date").toString();
+                System.out.printf("| %-14d  | %-15s| %-13d | %-20s  | %-19s |\n",
+                        reservation_id,guestName,roomNumber,contactNumber,reservationdate);
+            }
+            System.out.println("+-----------------+----------------+---------------+-----------------------+-----------------------+");
         }catch(SQLException e){
             System.out.println(e.getMessage()+"view reservation error ");
         }
